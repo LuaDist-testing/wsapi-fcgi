@@ -2,7 +2,7 @@
 
 package = "wsapi-fcgi"
 
-version = "1.3.2-1"
+version = "1.3.3-1"
 
 description = {
   summary = "Lua Web Server API FastCGI Adapter",
@@ -14,7 +14,7 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "wsapi >= 1.3.2", "rings >= 1.2.3", "coxpcall >= 1.13" }
+dependencies = { "wsapi >= 1.3.3", "rings >= 1.2.3", "coxpcall >= 1.13" }
 
 external_dependencies = {
   platforms = {
@@ -28,12 +28,12 @@ external_dependencies = {
 
 -- LuaDist source
 source = {
-  tag = "1.3.2-1",
+  tag = "1.3.3-1",
   url = "git://github.com/LuaDist-testing/wsapi-fcgi.git"
 }
 -- Original source
 -- source = {
---   url = "http://github.com/downloads/keplerproject/wsapi/wsapi-1.3.2.tar.gz"
+--   url = "http://github.com/downloads/keplerproject/wsapi/wsapi-1.3.3.tar.gz"
 -- }
 
 build = {
