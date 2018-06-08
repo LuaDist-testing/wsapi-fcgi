@@ -2,7 +2,7 @@
 
 package = "wsapi-fcgi"
 
-version = "1.2-1"
+version = "1.3-1"
 
 description = {
   summary = "Lua Web Server API FastCGI Adapter",
@@ -14,7 +14,7 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "wsapi >= 1.2", "rings >= 1.2.3", "coxpcall >= 1.13" }
+dependencies = { "wsapi >= 1.3", "rings >= 1.2.3", "coxpcall >= 1.13" }
 
 external_dependencies = {
   platforms = {
@@ -28,18 +28,16 @@ external_dependencies = {
 
 -- LuaDist source
 source = {
-  tag = "1.2-1",
+  tag = "1.3-1",
   url = "git://github.com/LuaDist-testing/wsapi-fcgi.git"
 }
 -- Original source
 -- source = {
---   url = "http://cloud.github.com/downloads/keplerproject/wsapi/wsapi-1.2.tar.gz"
+--   url = "http://github.com/downloads/keplerproject/wsapi/wsapi-1.3.tar.gz"
 -- }
 
 build = {
-   platforms = {
-     unix = {
-        type = "module",
+    type = "builtin",
 	modules = {
 	  ["wsapi.fastcgi"] = "src/wsapi/fastcgi.lua",
 	  lfcgi = {
@@ -50,22 +48,4 @@ build = {
           }
         },
        install = { bin = { "src/launcher/wsapi.fcgi" } }
-     },
-     win32 = {
-        type = "make",
-   	install_target = "install-fcgi",
-       	build_pass = true,
-       	build_target = "fcgi",
-       	build_variables = {
-       	 LUA_INCLUDE = "$(LUA_INCDIR)",
-	 	 LUA_LIB = "$(LUA_LIBDIR)\\lua5.1.lib",
-         LIB_OPTION = "$(LUA_LIBDIR)\\lua5.1.lib $(FASTCGI_DIR)\\libfcgi\\Release\\fcgi_stdio.obj $(FASTCGI_DIR)\\libfcgi\\Release\\os_win32.obj $(FASTCGI_DIR)\\libfcgi\\Release\\fcgiapp.obj",
-         CFLAGS = "$(CFLAGS) /I$(FASTCGI_DIR)\\include",
-       	},
-       	install_variables = {
-         LUA_LIBDIR = "$(LIBDIR)",
-	 BIN_DIR = "$(BINDIR)"
-       	}
-     }
-  }
 }
