@@ -15,7 +15,7 @@ module("wsapi.common", package.seeall)
 -- Meta information is public even if begining with an "_"
 _G.wsapi._COPYRIGHT   = "Copyright (C) 2007-2010 Kepler Project"
 _G.wsapi._DESCRIPTION = "WSAPI - the Lua Web Server API"
-_G.wsapi._VERSION     = "WSAPI 1.3"
+_G.wsapi._VERSION     = "WSAPI 1.3.1"
 
 -- Makes an index metamethod for the environment, from
 -- a function that returns the value of a server variable
@@ -281,8 +281,8 @@ function run(app, t)
       run_app(app, env)
    if ok then
      if not headers["Content-Length"] then
-       headers["Transfer-Encoding"] = "chunked"
        if t.http_response then
+	 headers["Transfer-Encoding"] = "chunked"
 	 local unchunked = res_iter
 	 res_iter = function ()
 		      local msg = unchunked()
