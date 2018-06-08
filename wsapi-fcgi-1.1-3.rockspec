@@ -2,11 +2,11 @@
 
 package = "wsapi-fcgi"
 
-version = "1.1-2"
+version = "1.1-3"
 
 -- LuaDist source
 source = {
-  tag = "1.1-2",
+  tag = "1.1-3",
   url = "git://github.com/LuaDist-testing/wsapi-fcgi.git"
 }
 -- Original source
@@ -24,7 +24,7 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "wsapi >= 1.1" }
+dependencies = { "wsapi >= 1.1", "rings >= 1.2.2", "coxpcall >= 1.13" }
 
 external_dependencies = {
   platforms = {
