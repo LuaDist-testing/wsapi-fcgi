@@ -88,22 +88,21 @@ local function fields(input, boundary)
   _, state.pos = string.find(input, boundary, 1, true)
   state.pos = state.pos + 1
   return function (state, _)
-	   local headers, name, file_name, value, size
-	   headers, state.pos = read_field_headers(input, state.pos)
-	   if headers then
-	     name, file_name = get_field_names(headers)
-	     if file_name then
-	       value, size, state.pos = read_field_contents(input,
-							    boundary,
-							    state.pos)
-	       value = file_value(value, file_name, size, headers)
-	     else
-	       value, size, state.pos = read_field_contents(input, boundary,
-						      state.pos)
-	     end
-	   end
-	   return name, value
-	 end, state
+     local headers, name, file_name, value, size
+     headers, state.pos = read_field_headers(input, state.pos)
+     if headers then
+       name, file_name = get_field_names(headers)
+       if file_name then
+         value, size, state.pos = read_field_contents(input, boundary,
+            state.pos)
+         value = file_value(value, file_name, size, headers)
+       else
+         value, size, state.pos = read_field_contents(input, boundary,
+            state.pos)
+       end
+     end
+     return name, value
+   end, state
 end
 
 local function parse_multipart_data(input, input_type, tab, overwrite)
@@ -129,48 +128,118 @@ local function parse_post_data(wsapi_env, tab, overwrite)
   else
     local length = tonumber(wsapi_env.CONTENT_LENGTH) or 0
     tab.post_data = wsapi_env.input:read(length) or ""
-  end  
+  end
   return tab
+end
+
+methods = {}
+
+function methods.__index(tab, name)
+  local func
+  if methods[name] then
+    func = methods[name]
+  else
+    local route_name = name:match("link_([%w_]+)")
+    if route_name then
+      func = function (self, query, ...)
+         return tab:route_link(route_name, query, ...)
+       end
+    end
+  end
+  tab[name] = func
+  return func
+end
+
+function methods:qs_encode(query)
+  local parts = {}
+  for k, v in pairs(query or {}) do
+    parts[#parts+1] = k .. "=" .. wsapi.util.url_encode(v)
+  end
+  if #parts > 0 then
+    return "?" .. table.concat(parts, "&")
+  else
+    return ""
+  end
+end
+
+function methods:route_link(route, query, ...)
+  local builder = self.mk_app["link_" .. route]
+  if builder then
+    local uri = builder(self.mk_app, self.env, ...)
+    return uri .. self:qs_encode(query)
+  else
+    error("there is no route named " .. route)
+  end
+end
+
+function methods:link(url, query)
+  local prefix = (self.mk_app and self.mk_app.prefix) or self.script_name
+  local uri = prefix .. url
+  return prefix .. url .. self:qs_encode(query)
+end
+
+function methods:absolute_link(url, query)
+  return url .. self:qs_encode(query)
+end
+
+function methods:static_link(url)
+  local prefix = (self.mk_app and self.mk_app.prefix) or self.script_name
+  local is_script = prefix:match("(%.%w+)$")
+  if not is_script then return self:link(url) end
+  local vpath = prefix:match("(.*)/") or ""
+  return vpath .. url
+end
+
+function methods:empty(s)
+  return not s or string.match(s, "^%s*$")
+end
+
+function methods:empty_param(param)
+  return self:empty(self.params[param])
 end
 
 function new(wsapi_env, options)
   options = options or {}
-  local req = { GET = {}, POST = {}, method = wsapi_env.REQUEST_METHOD,
-    path_info = wsapi_env.PATH_INFO, query_string = wsapi_env.QUERY_STRING,
-    script_name = wsapi_env.SCRIPT_NAME }
+  local req = {
+    GET          = {},
+    POST         = {},
+    method       = wsapi_env.REQUEST_METHOD,
+    path_info    = wsapi_env.PATH_INFO,
+    query_string = wsapi_env.QUERY_STRING,
+    script_name  = wsapi_env.SCRIPT_NAME,
+    env          = wsapi_env,
+    mk_app       = options.mk_app,
+    doc_root     = wsapi_env.DOCUMENT_ROOT,
+    app_path     = wsapi_env.APP_PATH
+  }
   parse_qs(wsapi_env.QUERY_STRING, req.GET, options.overwrite)
   if options.delay_post then
-    req.parse_post_data = function (self)
-		       parse_post_data(wsapi_env, self.POST, options.overwrite)
-		       self.parse_post_data = function ()
-						error("POST data already processed")
-					      end
-		     end
+    req.parse_post = function (self)
+      parse_post_data(wsapi_env, self.POST, options.overwrite)
+      self.parse_post = function () return nil, "postdata already parsed" end
+      return self.POST
+    end
   else
     parse_post_data(wsapi_env, req.POST, options.overwrite)
-    req.parse_post_data = function () 
-			    error("POST data already processed")
-			  end
+    req.parse_post = function () return nil, "postdata already parsed" end
   end
   req.params = {}
   setmetatable(req.params, { __index = function (tab, name)
-					 local var = req.GET[name] or
-					   req.POST[name]
-					 rawset(tab, name, var)
-					 return var
-				       end })
+    local var = req.GET[name] or req.POST[name]
+    rawset(tab, name, var)
+    return var
+  end})
   req.cookies = {}
   local cookies = string.gsub(";" .. (wsapi_env.HTTP_COOKIE or "") .. ";",
-			      "%s*;%s*", ";")
+            "%s*;%s*", ";")
   setmetatable(req.cookies, { __index = function (tab, name)
-					  name = name
-					  local pattern = ";" .. name .. 
-					    "=(.-);"
-					  local cookie = string.match(
-						  cookies, pattern)
-					  cookie = util.url_decode(cookie)
-					  rawset(tab, name, cookie)
-					  return cookie
-					end } )
-  return req
+    name = name
+    local pattern = ";" .. name ..
+      "=(.-);"
+    local cookie = string.match(cookies, pattern)
+    cookie = util.url_decode(cookie)
+    rawset(tab, name, cookie)
+    return cookie
+  end})
+  return setmetatable(req, methods)
 end
