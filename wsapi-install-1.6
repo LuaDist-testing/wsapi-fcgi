@@ -42,15 +42,15 @@ fi
 
 # Installer parameters
 
-LUA_VERSION=5.1.4
+LUA_VERSION=5.2.1
 PACKAGE=WSAPI
 PACKAGE_OPT=wsapi
 PACKAGE_ROCK=wsapi-xavante
-INSTALLER_VERSION=0.6
-PACKAGE_VERSION=1.4
+INSTALLER_VERSION=0.7
+PACKAGE_VERSION=1.6
 LUAROCKS_REPO=http://luarocks.org/repositories/rocks
-LUAROCKS_URL=http://www.luarocks.org/releases/luarocks-2.0.3.tar.gz
-LUAROCKS_VERSION=2.0.3
+LUAROCKS_URL=http://www.luarocks.org/releases/luarocks-2.0.12.tar.gz
+LUAROCKS_VERSION=2.0.12
 
 # Help
 
@@ -555,8 +555,7 @@ then
 cat <<EOF > /tmp/$PACKAGE_OPT-$PACKAGE_VERSION/pack_tree.lua
 #!/usr/bin/env lua
 
-require "luarocks.require"
-require "lfs"
+local lfs = require "lfs"
 
 local prefix, tree, target = ...
 

@@ -1,6 +1,6 @@
 package = "WSAPI"
 
-version = "1.3-1"
+version = "1.6-1"
 
 description = {
   summary = "Lua Web Server API",
@@ -12,15 +12,16 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "luafilesystem >= 1.5.0" }
+dependencies = { "luafilesystem >= 1.6.2" }
 
 source = {
-  url = "http://github.com/downloads/keplerproject/wsapi/wsapi-1.3.tar.gz"
+  url = "http://www.keplerproject.org/files/wsapi-1.6.tar.gz"
 }
 
 build = {
   type = "builtin",
   modules = {
+    ["wsapi"] = "src/wsapi.lua",
     ["wsapi.common"] = "src/wsapi/common.lua",
     ["wsapi.request"] = "src/wsapi/request.lua",
     ["wsapi.response"] = "src/wsapi/response.lua",
@@ -28,6 +29,7 @@ build = {
     ["wsapi.cgi"] = "src/wsapi/cgi.lua",
     ["wsapi.sapi"] = "src/wsapi/sapi.lua",
     ["wsapi.ringer"] = "src/wsapi/ringer.lua",
+    ["wsapi.mock"] = "src/wsapi/mock.lua",
   },
   copy_directories = { "samples", "doc", "tests" },
   install = { bin = { "src/launcher/wsapi.cgi" } }

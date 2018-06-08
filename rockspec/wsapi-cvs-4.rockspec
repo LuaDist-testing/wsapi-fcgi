@@ -12,7 +12,7 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "luafilesystem >= 1.5.0" }
+dependencies = { "luafilesystem >= 1.6.2" }
 
 source = {
   url = "git://github.com/keplerproject/wsapi.git"
@@ -21,6 +21,7 @@ source = {
 build = {
   type = "builtin",
   modules = {
+    ["wsapi"] = "src/wsapi.lua",
     ["wsapi.common"] = "src/wsapi/common.lua",
     ["wsapi.request"] = "src/wsapi/request.lua",
     ["wsapi.response"] = "src/wsapi/response.lua",

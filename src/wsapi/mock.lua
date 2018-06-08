@@ -6,7 +6,7 @@
 --
 -----------------------------------------------------------------------------
 
-module(..., package.seeall)
+local _M = {}
 
 local common  = require "wsapi.common"
 local request = require "wsapi.request"
@@ -108,9 +108,16 @@ end
 
 local function build_post(path, params, headers)
   local req          = build_request("POST", path, headers)
-  local body         = request.methods.qs_encode(nil, params):gsub("^?", "")
   req.REQUEST_URI    = "http://" .. req.HTTP_HOST .. req.PATH_INFO
-  req.CONTENT_TYPE   = "x-www-form-urlencoded"
+
+  local body
+  if headers["Content-Type"] then
+    body = params
+  else
+    body = request.methods.qs_encode(nil, params):gsub("^?", "")
+    req.CONTENT_TYPE   = "x-www-form-urlencoded"
+  end
+
   req.CONTENT_LENGTH = #body
 
   return {
@@ -124,7 +131,7 @@ end
 local function make_request(request_builder, app, path, params, headers)
   local wsapi_env = request_builder(path, params, headers)
   local response = {}
-  response.code, response.headers = wsapi.common.run(app, wsapi_env)
+  response.code, response.headers = common.run(app, wsapi_env)
   response.body = wsapi_env.output:read()
   response.wsapi_errors = wsapi_env.error:read()
   return response, wsapi_env.env
@@ -140,10 +147,12 @@ end
 
 --- Creates a WSAPI handler for testing.
 -- @param app The WSAPI application you want to test.
-function make_handler(app)
+function _M.make_handler(app)
   return {
     app  = app,
     get  = get,
     post = post
   }
 end
+
+return _M
