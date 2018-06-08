@@ -5,6 +5,7 @@ local rings = require "rings"
 local _M = {}
 
 local init = [==[
+  local loadstring = loadstring or load
   local app_name, bootstrap_code, is_file = ...
   if bootstrap_code then
     local bootstrap, err
@@ -23,9 +24,6 @@ local init = [==[
     _, package.cpath = remotedostring("return package.cpath")
   end
   local common = require"wsapi.common"
-  local coxpcall = require "coxpcall"
-  pcall = coxpcall.pcall
-  xpcall = coxpcall.xpcall
   
   local wsapi_error = {
        write = function (self, err)

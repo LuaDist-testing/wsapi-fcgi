@@ -1,8 +1,6 @@
--- This file was automatically generated for the LuaDist project.
+package = "WSAPI-FCGI"
 
-package = "wsapi-fcgi"
-
-version = "1.6.1-1"
+version = "1.7-1"
 
 description = {
   summary = "Lua Web Server API FastCGI Adapter",
@@ -14,7 +12,7 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "wsapi >= 1.6.1", "rings >= 1.3.0", "coxpcall >= 1.14" }
+dependencies = { "wsapi >= 1.6.1" }
 
 external_dependencies = {
   platforms = {
@@ -26,15 +24,10 @@ external_dependencies = {
   }
 }
 
--- LuaDist source
 source = {
-  tag = "1.6.1-1",
-  url = "git://github.com/LuaDist-testing/wsapi-fcgi.git"
+  url = "git://github.com/keplerproject/wsapi",
+  tag = "v1.7",
 }
--- Original source
--- source = {
---   url = "http://www.keplerproject.org/files/wsapi-1.6.1.tar.gz"
--- }
 
 build = {
   platforms = {
