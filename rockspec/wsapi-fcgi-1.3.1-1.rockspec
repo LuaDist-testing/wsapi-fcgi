@@ -1,6 +1,6 @@
 package = "WSAPI-FCGI"
 
-version = "1.3-1"
+version = "1.3.1-1"
 
 description = {
   summary = "Lua Web Server API FastCGI Adapter",
@@ -25,7 +25,7 @@ external_dependencies = {
 }
 
 source = {
-  url = "http://github.com/downloads/keplerproject/wsapi/wsapi-1.3.tar.gz"
+  url = "http://github.com/downloads/keplerproject/wsapi/wsapi-1.3.1.tar.gz"
 }
 
 build = {
