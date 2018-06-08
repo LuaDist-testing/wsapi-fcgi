@@ -1,10 +1,6 @@
 package = "WSAPI-FCGI"
 
-version = "1.1-1"
-
-source = {
-  url = "http://luaforge.net/frs/download.php/3935/wsapi-1.1.0.tar.gz"
-}
+version = "1.2-1"
 
 description = {
   summary = "Lua Web Server API FastCGI Adapter",
@@ -16,7 +12,7 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "wsapi >= 1.1" }
+dependencies = { "wsapi >= 1.2", "rings >= 1.2.3", "coxpcall >= 1.13" }
 
 external_dependencies = {
   platforms = {
@@ -29,8 +25,7 @@ external_dependencies = {
 }
 
 source = {
-   url = "cvs://:pserver:anonymous:@cvs.luaforge.net:/cvsroot/wsapi",
-   cvs_tag = "HEAD",
+  url = "http://cloud.github.com/downloads/keplerproject/wsapi/wsapi-1.2.tar.gz"
 }
 
 build = {
@@ -38,6 +33,7 @@ build = {
      unix = {
         type = "module",
 	modules = {
+	  ["wsapi.fastcgi"] = "src/wsapi/fastcgi.lua",
 	  lfcgi = {
             sources = "src/fastcgi/lfcgi.c",
             libraries = "fcgi",

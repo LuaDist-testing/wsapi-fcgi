@@ -53,6 +53,8 @@ function normalize_app(app_run, is_file)
       else
 	 return normalize_app(require(app_run))
       end
+   else
+      error("not a valid WSAPI application")
    end
 end
 
@@ -70,9 +72,55 @@ function send_content(out, res_iter, write_method)
    end
 end
 
+local status_codes = {
+   [100] = "Continue",
+   [101] = "Switching Protocols",
+   [200] = "OK",
+   [201] = "Created",
+   [202] = "Accepted",
+   [203] = "Non-Authoritative Information",
+   [204] = "No Content",
+   [205] = "Reset Content",
+   [206] = "Partial Content",
+   [300] = "Multiple Choices",
+   [301] = "Moved Permanently",
+   [302] = "Found",
+   [303] = "See Other",
+   [304] = "Not Modified",
+   [305] = "Use Proxy",
+   [307] = "Temporary Redirect",
+   [400] = "Bad Request",
+   [401] = "Unauthorized",
+   [402] = "Payment Required",
+   [403] = "Forbidden",
+   [404] = "Not Found",
+   [405] = "Method Not Allowed",
+   [406] = "Not Acceptable",
+   [407] = "Proxy Authentication Required",
+   [408] = "Request Time-out",
+   [409] = "Conflict",
+   [410] = "Gone",
+   [411] = "Length Required",
+   [412] = "Precondition Failed",
+   [413] = "Request Entity Too Large",
+   [414] = "Request-URI Too Large",
+   [415] = "Unsupported Media Type",
+   [416] = "Requested range not satisfiable",
+   [417] = "Expectation Failed",
+   [500] = "Internal Server Error",
+   [501] = "Not Implemented",
+   [502] = "Bad Gateway",
+   [503] = "Service Unavailable",
+   [504] = "Gateway Time-out",
+   [505] = "HTTP Version not supported",
+}
+
 function send_output(out, status, headers, res_iter, write_method)
    local write = out[write_method or "write"]
-   write(out, "Status: " .. (status or 500) .. "\r\n")
+   if type(status) == "number" or status:match("^%d+$") then 
+     status = status .. " " .. status_codes[tonumber(status)]
+   end
+   write(out, "Status: " .. (status or "500 Internal Server Error") .. "\r\n")
    for h, v in pairs(headers or {}) do
       if type(v) ~= "table" then
 	 write(out, h .. ": " .. tostring(v) .. "\r\n") 
@@ -269,9 +317,9 @@ function adjust_non_wrapped(wsapi_env, filename, launcher)
 end
 
 function normalize_paths(wsapi_env, filename, launcher)
-   if not filename then
-     filename = wsapi_env.SCRIPT_FILENAME
-     if filename == "" then filename = wsapi_env.PATH_TRANSLATED end
+   if not filename or filename == "" then
+     filename = wsapi_env.PATH_TRANSLATED
+     if filename == "" then filename = wsapi_env.SCRIPT_FILENAME end
      filename = adjust_non_wrapped(wsapi_env, filename, launcher)
      filename = adjust_iis_path(wsapi_env, filename)
      wsapi_env.PATH_TRANSLATED = filename
@@ -316,6 +364,7 @@ end
 
 do
   local app_states = {}
+  local last_collection = os.time()
   setmetatable(app_states, { __index = function (tab, app)
 					  tab[app] = {}
 					  return tab[app]
@@ -336,13 +385,40 @@ do
      end
   end
 
+  local function collect_states(period, ttl)
+     if period and (last_collection + period < os.time()) then
+	for app, app_state in pairs(app_states) do
+	   local new_states = {}
+	   for _, state in ipairs(app_state.states) do
+	      if ttl and (rawget(state.data, "created_at") + ttl > os.time()) then
+		 table.insert(new_states, state)
+	      end
+	   end
+	   app_state.states = new_states
+	end
+	last_collection = os.time()
+     end
+  end
+
+  local function wsapi_loader_isolated_helper(wsapi_env, params)
+     local path, file, modname, ext, mtime = 
+	find_module(wsapi_env, params.filename, params.launcher)
+     if params.reload then mtime = nil end
+     if not path then
+	error({ 404, "Resource " .. wsapi_env.SCRIPT_NAME .. " not found"})
+     end
+     local app = load_wsapi_isolated(path, file, modname, ext, mtime, params.timeout)
+     wsapi_env.APP_PATH = path
+     return app(wsapi_env)
+  end
+
   function load_wsapi_isolated(path, file, modname, ext, mtime)
     local filename = path .. "/" .. file
     lfs.chdir(path)
     local app, data
     local app_state = app_states[filename]
     if mtime and app_state.mtime == mtime then
-      for _, state in ipairs(app_state.states) do
+      for i, state in ipairs(app_state.states) do
 	 if not rawget(state.data, "status") then
 	    return state.app
 	 end
@@ -359,34 +435,46 @@ do
     return app
   end
 
+  function make_isolated_loader(params)
+     params = params or {}
+     return function (wsapi_env)
+	       collect_states(params.period, params.ttl)
+	       return wsapi_loader_isolated_helper(wsapi_env, params)
+	    end
+  end
+
+  function wsapi_loader_isolated(wsapi_env)
+     return wsapi_loader_isolated_helper(wsapi_env, {})
+  end 
+  
+  function wsapi_loader_isolated_reload(wsapi_env)
+     return wsapi_loader_isolated_helper(wsapi_env, { reload = true })
+  end 
+
 end
-
-function wsapi_loader_isolated_helper(wsapi_env, reload)
-   local path, file, modname, ext, mtime = 
-      find_module(wsapi_env)
-   if reload then mtime = nil end
-   if not path then
-      error({ 404, "Resource " .. wsapi_env.SCRIPT_NAME .. " not found"})
-   end
-   local app = load_wsapi_isolated(path, file, modname, ext, mtime)
-   wsapi_env.APP_PATH = path
-   return app(wsapi_env)
-end
-
-function wsapi_loader_isolated(wsapi_env)
-   return wsapi_loader_isolated_helper(wsapi_env)
-end 
-
-function wsapi_loader_isolated_reload(wsapi_env)
-   return wsapi_loader_isolated_helper(wsapi_env, true)
-end 
 
 do
   local app_states = {}
+  local last_collection = os.time()
   setmetatable(app_states, { __index = function (tab, app)
 					  tab[app] = {}
 					  return tab[app]
 				       end })
+
+  local function collect_states(period, ttl)
+     if period and (last_collection + period < os.time()) then
+	for app, app_state in pairs(app_states) do
+	   local new_states = {}
+	   for _, state in ipairs(app_state.states) do
+	      if ttl and (rawget(state.data, "created_at") + ttl > os.time()) then
+		 table.insert(new_states, state)
+	      end
+	   end
+	   app_state.states = new_states
+	end
+	last_collection = os.time()
+     end
+  end
 
   local function bootstrap_app(path, app_modname, extra)
      local bootstrap = [=[
@@ -399,26 +487,35 @@ do
      return ringer.new(app_modname, bootstrap)
   end
 
-  function load_isolated_launcher(filename, app_modname, bootstrap)
+  function load_isolated_launcher(filename, app_modname, bootstrap, reload)
     local app, data
     local app_state = app_states[filename]
     local path, _ = splitpath(filename)
     local mtime = lfs.attributes(filename, "modification")
-    if app_state.mtime == mtime then
-      for _, state in ipairs(app_state.states) do
-	 if not rawget(state.data, "status") then
-	    return state.app
-	 end
-      end
-      app, data = bootstrap_app(path, app_modname, bootstrap)
-      table.insert(app_state.states, { app = app, data = data })
-   else
-      app, data = bootstrap_app(path, app_modname, bootstrap)
-      app_states[filename] = { states = { { app = app, data = data } }, 
-	 mtime = mtime }
+    if not reload and app_state.mtime == mtime then
+       for _, state in ipairs(app_state.states) do
+	  if not rawget(state.data, "status") then
+	     return state.app
+	  end
+       end
+       app, data = bootstrap_app(path, app_modname, bootstrap)
+       table.insert(app_state.states, { app = app, data = data })
+    else
+       app, data = bootstrap_app(path, app_modname, bootstrap)
+       app_states[filename] = { states = { { app = app, data = data } }, 
+				mtime = mtime }
     end
     return app
   end
 
+  function make_isolated_launcher(params)
+     params = params or {}
+     return function (wsapi_env)
+	       collect_states(params.period, params.ttl)
+	       normalize_paths(wsapi_env, params.filename, params.launcher)
+	       local app = load_isolated_launcher(wsapi_env.PATH_TRANSLATED, params.modname, params.bootstrap, params.reload)
+	       return app(wsapi_env)
+	    end 
+  end
 end
 

@@ -1,6 +1,6 @@
 package = "WSAPI-FCGI"
 
-version = "1.1-1"
+version = "1.1-2"
 
 source = {
   url = "http://luaforge.net/frs/download.php/3935/wsapi-1.1.0.tar.gz"
@@ -26,11 +26,6 @@ external_dependencies = {
       }
     }
   }
-}
-
-source = {
-   url = "cvs://:pserver:anonymous:@cvs.luaforge.net:/cvsroot/wsapi",
-   cvs_tag = "HEAD",
 }
 
 build = {

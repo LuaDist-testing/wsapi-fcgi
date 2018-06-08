@@ -12,7 +12,7 @@ description = {
   homepage = "http://www.keplerproject.org/wsapi"
 }
 
-dependencies = { "wsapi cvs" }
+dependencies = { "wsapi cvs", "rings cvs", "coxpcall cvs" }
 
 external_dependencies = {
   platforms = {
@@ -25,8 +25,7 @@ external_dependencies = {
 }
 
 source = {
-   url = "cvs://:pserver:anonymous:@cvs.luaforge.net:/cvsroot/wsapi",
-   cvs_tag = "HEAD",
+   url = "git://github.com/keplerproject/wsapi.git",
 }
 
 build = {
@@ -34,6 +33,7 @@ build = {
      unix = {
         type = "module",
 	modules = {
+	  ["wsapi.fastcgi"] = "src/wsapi/fastcgi.lua",
 	  lfcgi = {
             sources = "src/fastcgi/lfcgi.c",
             libraries = "fcgi",

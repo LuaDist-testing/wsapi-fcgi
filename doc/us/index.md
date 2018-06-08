@@ -17,21 +17,35 @@ WSAPI is free software and uses the same license as Lua 5.1
 
 ## Status
 
-Current version is 1.1. It was developed for Lua 5.1.
+Current version is 1.2. It was developed for Lua 5.1.
 
 ## Download
 
-WSAPI can be downloaded from its [LuaForge](http://luaforge.net/projects/wsapi/) page.
-You can also get WSAPI using [LuaRocks](http://luarocks.org):
+You can get WSAPI using [LuaRocks](http://luarocks.org):
 
 <pre class="example">
-luarocks install wsapi
+luarocks install wsapi-xavante
 </pre>
 
-## CVS and Bug Tracker
+You can also get an installer script that installs Lua+LuaRocks+WSAPI 
+[here](http://cloud.github.com/downloads/keplerproject/wsapi-install-1.2.0.tar.gz). See
+the [manual](manual.html) for installation instructions.
 
-WSAPI CVS and bug tracker are available at its [LuaForge](http://luaforge.net/projects/wsapi/) page.
+## Latest Sources and Bug Tracker
+
+WSAPI sources and bug tracker are available at its [Github](http://github.com/keplerproject/wsapi/) page.
+
 ## History
+
+**WSAPI 1.2** [27/Oct/2009]
+
+* Adds time-based collection of Lua states to FCGI and Xavante launchers
+* Adds "wsapi" laucher script, to start a Xavante WSAPI server
+* Fixed "undefined media type" error
+* Added is_empty utility function to check if a string is nil or ''
+* Fixed bug with empty bodies in wsapi.xavante, and added full http status codes to responses 
+* Changing order of evaluating PATH\_TRANSLATED and SCRIPT\_FILENAME, to make non-wrapped launchers work in OSX Apache
+* Reload support for load\_isolated\_launcher
 
 **WSAPI 1.1** [04/Feb/2009]
 
@@ -50,8 +64,8 @@ environment that lets you process the POST data more than once.
 
 ## Credits
 
-WSAPI was designed and developed by F&aacute;bio Mascarenhas and
-Andr&eacute; Carregal, and is maintained by F&aacute;bio Mascarenhas.
+WSAPI was designed and developed by Fabio Mascarenhas and
+Andr&eacute; Carregal, and is maintained by Fabio Mascarenhas.
 
 ## Contact Us
 

@@ -1,22 +1,22 @@
 package = "WSAPI"
 
-version = "cvs-3"
+version = "1.1-2"
+
+source = {
+  url = "http://luaforge.net/frs/download.php/3935/wsapi-1.1.0.tar.gz",
+}
 
 description = {
   summary = "Lua Web Server API",
   detailed = [[
     WSAPI is an API that abstracts the web server from Lua web applications. This is the rock
-    that contains the base WSAPI libraries plus the CGI adapters.
+    contains the base WSAPI libraries plus the CGI and Xavante adapters.
   ]],
   license = "MIT/X11",
-  homepage = "http://www.keplerproject.org/wsapi"
+  homepage = "http://wsapi.luaforge.net"
 }
 
-dependencies = { "luafilesystem cvs" }
-
-source = {
-  url = "git://github.com/keplerproject/wsapi.git"
-}
+dependencies = { "luafilesystem >= 1.4.2" }
 
 build = {
    platforms = {
@@ -28,10 +28,12 @@ build = {
 	  ["wsapi.response"] = "src/wsapi/response.lua",
 	  ["wsapi.util"] = "src/wsapi/util.lua",
 	  ["wsapi.cgi"] = "src/wsapi/cgi.lua",
-	  ["wsapi.sapi"] = "src/wsapi/sapi.lua",
+	  ["wsapi.fastcgi"] = "src/wsapi/fastcgi.lua",
 	  ["wsapi.ringer"] = "src/wsapi/ringer.lua",
+	  ["wsapi.sapi"] = "src/wsapi/sapi.lua",
+	  ["wsapi.xavante"] = "src/wsapi/xavante.lua"
 	},
-	copy_directories = { "samples", "doc", "tests" },
+	copy_directories = { "samples", "doc" },
 	install = { bin = { "src/launcher/wsapi.cgi" } }
      },
      win32 = {

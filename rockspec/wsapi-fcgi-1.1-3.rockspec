@@ -1,18 +1,10 @@
--- This file was automatically generated for the LuaDist project.
-
-package = "wsapi-fcgi"
+package = "WSAPI-FCGI"
 
 version = "1.1-3"
 
--- LuaDist source
 source = {
-  tag = "1.1-3",
-  url = "git://github.com/LuaDist-testing/wsapi-fcgi.git"
+  url = "http://luaforge.net/frs/download.php/3935/wsapi-1.1.0.tar.gz"
 }
--- Original source
--- source = {
---   url = "http://luaforge.net/frs/download.php/3935/wsapi-1.1.0.tar.gz"
--- }
 
 description = {
   summary = "Lua Web Server API FastCGI Adapter",
