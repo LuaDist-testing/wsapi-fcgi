@@ -46,7 +46,12 @@ To use these libraries just <code>require</code> them in your application or fra
 
 <h2>Request</h2>
 
-<p><strong>wsapi.request.new(*wsapi_env*)</strong> - creates a new request object wrapping *wsapi_env*</p>
+<p><strong>wsapi.request.new(*wsapi_env<em>, [</em>options*])</strong> - creates a new request object wrapping *wsapi_env<em>; *options</em> is an (optional) table of extra options
+for the request, the only option currently supported is *delay_post*, if set
+this won't process the POST data on creation of the request</p>
+
+<p><strong>req:parse<em>post</em>data()</strong> - processed the POST data in case the processing
+was delayed by passing *delay_post = true* on creation of the request</p>
 
 <p><strong>req.GET</strong> - table with GET parameters of request</p>
 
@@ -93,6 +98,10 @@ concatenate the contents of the table and add to the body</p>
 
 <p><strong>wsapi.util.url_decode(<em>s</em>)</strong> - decodes <em>s</em> according to RFC2396</p>
 
+<p><strong>wsapi.util.make_rewindable(<em>wsapi_env</em>)</strong> - wraps <em>wsapi_env</em> in a new
+environment that lets you process the POST data more than once. This new
+environment's input object has a <em>rewind</em> method that you can call to allow you to read
+the POST data again.</p>
 
 
 

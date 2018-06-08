@@ -10,15 +10,12 @@ local lfs = require "lfs"
 local _, ringer = pcall(require, "wsapi.ringer")
 local _G = _G
 
-pcall(lfs.setmode, io.stdin, "binary")
-pcall(lfs.setmode, io.stdout, "binary")
-
 module("wsapi.common", package.seeall)
 
 -- Meta information is public even if begining with an "_"
 _G.wsapi._COPYRIGHT   = "Copyright (C) 2007 Kepler Project"
 _G.wsapi._DESCRIPTION = "WSAPI - the Lua Web Server API"
-_G.wsapi._VERSION     = "WSAPI 1.0"
+_G.wsapi._VERSION     = "WSAPI 1.1"
 
 function sv_index(func)
    return function (env, n)
@@ -37,6 +34,11 @@ function input_maker(obj, read_method)
      if n > 0 then return read(obj, n) end
    end
    return input
+end
+
+function setmode()
+   pcall(lfs.setmode, io.stdin, "binary")
+   pcall(lfs.setmode, io.stdout, "binary")
 end
 
 function normalize_app(app_run, is_file)
@@ -275,16 +277,8 @@ function normalize_paths(wsapi_env, filename, launcher)
      wsapi_env.PATH_TRANSLATED = filename
      wsapi_env.SCRIPT_FILENAME = filename
    else
-     if wsapi_env.PATH_TRANSLATED == "" then
-       wsapi_env.PATH_TRANSLATED = wsapi_env.SCRIPT_FILENAME
-     end
-     if wsapi_env.SCRIPT_FILENAME == "" then
-       wsapi_env.SCRIPT_FILENAME = wsapi_env.PATH_TRANSLATED
-     end
-     if wsapi_env.PATH_TRANSLATED == "" then
-       wsapi_env.PATH_TRANSLATED = filename
-       wsapi_env.SCRIPT_FILENAME = filename
-     end
+     wsapi_env.PATH_TRANSLATED = filename
+     wsapi_env.SCRIPT_FILENAME = filename
    end
    local s, e = wsapi_env.PATH_INFO:find(wsapi_env.SCRIPT_NAME, 1, true)
    if s == 1 then
@@ -427,3 +421,4 @@ do
   end
 
 end
+

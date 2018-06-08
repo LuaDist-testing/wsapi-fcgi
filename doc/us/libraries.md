@@ -5,7 +5,12 @@ To use these libraries just `require` them in your application or framework.
 
 ## Request
 
-**wsapi.request.new(*wsapi_env*)** - creates a new request object wrapping *wsapi_env*
+**wsapi.request.new(*wsapi_env*, [*options*])** - creates a new request object wrapping *wsapi_env*; *options* is an (optional) table of extra options
+for the request, the only option currently supported is *delay_post*, if set
+this won't process the POST data on creation of the request
+
+**req:parse_post_data()** - processed the POST data in case the processing
+was delayed by passing *delay_post = true* on creation of the request
 
 **req.GET** - table with GET parameters of request
 
@@ -52,3 +57,7 @@ concatenate the contents of the table and add to the body
 
 **wsapi.util.url_decode(*s*)** - decodes *s* according to RFC2396
 
+**wsapi.util.make\_rewindable(*wsapi\_env*)** - wraps *wsapi\_env* in a new
+environment that lets you process the POST data more than once. This new
+environment's input object has a *rewind* method that you can call to allow you to read
+the POST data again.

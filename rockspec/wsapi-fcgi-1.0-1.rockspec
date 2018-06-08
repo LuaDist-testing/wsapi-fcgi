@@ -3,7 +3,7 @@ package = "WSAPI-FCGI"
 version = "1.0-1"
 
 source = {
-  url = "http://luaforge.net/frs/download.php/3380/wsapi-1.0.0.tar.gz"
+  url = "http://luaforge.net/frs/download.php/3382/wsapi-1.0.0.tar.gz"
 }
 
 description = {
@@ -16,7 +16,10 @@ description = {
   homepage = "http://wsapi.luaforge.net"
 }
 
-dependencies = { 'wsapi', 'rings' }
+dependencies = {
+	'wsapi >= 1.0',
+	'rings >= 1.2.1',
+}
 
 external_dependencies = {
   FASTCGI = {

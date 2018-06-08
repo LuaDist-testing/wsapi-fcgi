@@ -1,10 +1,6 @@
 package = "WSAPI"
 
-version = "1.0-1"
-
-source = {
-  url = "http://luaforge.net/frs/download.php/3382/wsapi-1.0.0.tar.gz",
-}
+version = "cvs-2"
 
 description = {
   summary = "Lua Web Server API",
@@ -13,10 +9,15 @@ description = {
     contains the base WSAPI libraries plus the CGI and Xavante adapters.
   ]],
   license = "MIT/X11",
-  homepage = "http://wsapi.luaforge.net"
+  homepage = "http://www.keplerproject.org/wsapi"
 }
 
 dependencies = { }
+
+source = {
+   url = "cvs://:pserver:anonymous:@cvs.luaforge.net:/cvsroot/wsapi",
+   cvs_tag = "HEAD",
+}
 
 build = {
    type = "make",
@@ -24,7 +25,7 @@ build = {
    install_target = "install-rocks",
    install_variables = {
      PREFIX  = "$(PREFIX)",
-     LUA_BIN = "$(LUA)",
+     LUA_BIN = "/usr/bin/env lua",
      LUA_DIR = "$(LUADIR)",
      BIN_DIR = "$(BINDIR)"
    },
@@ -34,7 +35,7 @@ build = {
        build_target = "cgi",
        build_variables = {
          LUA_INCLUDE = "$(LUA_INCDIR)",
-         LUA_LIB = "$(LUA_LIBDIR)\\lua5.1.lib"
+	 LUA_LIB = "$(LUA_LIBDIR)\\lua5.1.lib"
        }
      }
    }

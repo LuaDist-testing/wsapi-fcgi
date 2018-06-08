@@ -13,9 +13,11 @@ WSAPI's main influence is Ruby's [Rack](http://rack.rubyforge.org/) framework, b
 also influenced by Python's [WSGI](http://wsgi.org/wsgi) (PEP 333). It's not a direct
 clone of either of them, though, and tries to follow standard Lua idioms.
 
+WSAPI is free software and uses the same license as Lua 5.1
+
 ## Status
 
-Current version is 1.0. It was developed for Lua 5.1.
+Current version is 1.1. It was developed for Lua 5.1.
 
 ## Download
 
@@ -31,7 +33,17 @@ luarocks install wsapi
 WSAPI CVS and bug tracker are available at its [LuaForge](http://luaforge.net/projects/wsapi/) page.
 ## History
 
-**WSAPI 1.0** [18/May/2008]
+**WSAPI 1.1** [04/Feb/2009]
+
+* Adds *options* table to **wsapi.request.new**, *delay_post* option delays
+POST processing until **req:parse_post_data()** is called
+* Moves call to **lfs.setmode** from wsapi.common to wsapi.cgi
+* Adds **wsapi.util.make\_rewindable(*wsapi\_env*)** method - wraps *wsapi\_env* in a new
+environment that lets you process the POST data more than once.
+* Correctly handles PATH\_TRANSLATED and SCRIPT\_FILENAME in case the web server gets creative
+* Statically links the FastCGI version on Windows
+
+[**WSAPI 1.0**](http://wsapi.luaforge.net/1.0/) [18/May/2008]
 
 * First public version.
 * Includes CGI, FastCGI and Xavante WSAPI connectors.
